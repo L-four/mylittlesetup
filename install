@@ -1,0 +1,19 @@
+#!/bin/bash
+
+function noyes {
+  echo -n "$1 [N/Y]:"
+  read a
+  if [ $a == "N" -o $a == "n" -o $a = "" ]; then
+     return 0
+  fi
+  return 1
+}
+
+noyes 'Lets play a game?' && exit 0
+
+echo -n "Enter your Github user name:"
+read github_name
+
+echo "Your Github name is: $github_name"
+
+
