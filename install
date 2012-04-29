@@ -1,5 +1,10 @@
 #!/bin/bash
 
+cat << _EOF_
+You should have all the features you wish to install
+forked on your github profile
+_EOF_
+
 function noyes {
   echo -n "$1 [N/Y]:"
   read a
@@ -9,11 +14,48 @@ function noyes {
   return 1
 }
 
-noyes 'Lets play a game?' && exit 0
+function log_msg {
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    NORMAL=$(tput sgr0)
+    MSG="$1"
+    STATUS="[OK]"
+    STATUSCOLOR="$GREEN${STATUS}$NORMAL"
+    let COL=$(tput cols)-${#MSG}+${#STATUSCOLOR}-${#STATUS}
+
+    echo -n $MSG
+    printf "%${COL}s\n"  "$STATUSCOLOR"
+}
+
+function git_get_feature {
+  echo "Cloning $1 from Github..."
+  git clone -q "git@github.com:$github_name/$1.git" "$HOME/.$1"
+}
+
+function get_app {
+  noyes "Install $2?" && return 0
+  if [[ $1 == "git" ]]; then
+    git_get_feature $2
+  elif [[ $1 == "apt" ]]; then
+    sudo apt-get install $2
+  fi
+ return 1
+}
+
+function should_install {
+  type $1 >/dev/null 2>&1 && log_msg "$1 is installed already" || `get_app $2 $1` 
+}
 
 echo -n "Enter your Github user name:"
 read github_name
 
 echo "Your Github name is: $github_name"
 
+should_install "zsh" "apt"
+
+should_install "oh-my-zsh" "git"
+
+should_install "dotfiles" "git"
+
+log_msg "Fin." 
 
