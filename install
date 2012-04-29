@@ -1,14 +1,22 @@
 #!/bin/bash
 
 cat << _EOF_
-You should have all the features you wish to install
-forked on your github profile
+
+###############################################################################
+#                                                                             #
+#  You should have all the features you wish to install                       #
+#  forked on your github profile                                              #
+#                                                                             #
+###############################################################################
+
 _EOF_
+
+exec 3<&0
 
 function noyes {
   echo -n "$1 [N/Y]:"
-  read a
-  if [ $a == "N" -o $a == "n" -o $a = "" ]; then
+  read a <&3
+  if [[ "$a" == "N" ||  "$a" == "n" || "$a" == "" ]]; then
      return 0
   fi
   return 1
@@ -29,21 +37,28 @@ function log_msg {
 
 function git_get_feature {
   echo "Cloning $1 from Github..."
-  git clone -q "git@github.com:$github_name/$1.git" "$HOME/.$1"
+  git clone -q "git@github.com:$github_name/$1.git" "$HOME/$2"
 }
 
 function get_app {
   noyes "Install $2?" && return 0
   if [[ $1 == "git" ]]; then
-    git_get_feature $2
+    git_get_feature $2 $3
   elif [[ $1 == "apt" ]]; then
     sudo apt-get install $2
+  fi
+  
+  if [[ "$3" != "-" ]]; then
+    HERE=$(pwd)
+    cd "$HOME/$3"
+    sudo $4
+    cd $HERE
   fi
  return 1
 }
 
 function should_install {
-  type $1 >/dev/null 2>&1 && log_msg "$1 is installed already" || `get_app $2 $1` 
+    type $1 >/dev/null 2>&1 && log_msg "$1 is installed already" || get_app $2 $1 $3 $4
 }
 
 echo -n "Enter your Github user name:"
@@ -51,11 +66,18 @@ read github_name
 
 echo "Your Github name is: $github_name"
 
-should_install "zsh" "apt"
+while read line; do
+  first=${line%% *}
+  line=${line#* }
+  sec=${line%% *}
+  line=${line#* }
+  third=${line%% *}
+  line=${line#* }
+  fourth=${line%% *}
 
-should_install "oh-my-zsh" "git"
-
-should_install "dotfiles" "git"
+  should_install $first $sec $third $fourth
+  
+done < "install_list"
 
 log_msg "Fin." 
 
