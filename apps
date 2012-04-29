@@ -1,0 +1,66 @@
+#!/bin/bash
+
+function install_1 {
+ app="git"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+
+function install_2 {
+ app="vim"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+
+function install_3 {
+ app="rake"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+
+function install_4 {
+ app="make"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_5 {
+ app="htop"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_6 {
+ app="python"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_7 {
+ app="autojump"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_8 {
+ app="zsh"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_9 {
+ app="cowsay"
+ installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+}
+function install_10 {
+ install_4 "no_msg"
+ install_9 "no_msg"
+ app="ponysay"
+ app_dir="$HOME/src/$app"
+ is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app "erkin" $app_dir "git" || cd $app_dir || make install
+}
+
+function install_11 {
+ display_menu "github"
+ get_github_name || return 0
+ app="dotfiles"
+ app_dir="$HOME/.$app"
+ is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app $github_name $app_dir "git" || cd $app_dir || rake install
+}
+
+function install_12 {
+ display_menu "github"
+ get_github_name || return 0
+ app="oh-my-zsh"
+ app_dir="$HOME/.$app"
+ is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app $github_name $app_dir "git" 
+}
+
+

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+function noyes {
+  echo -n "$1 [N/Y]:"
+  read a
+  if [[ "$a" == "N" ||  "$a" == "n" || "$a" == "" ]]; then
+     return 0
+  fi
+  return 1
+}
+
+function log_msg {
+  RED=$(tput setaf 1)
+  GREEN=$(tput setaf 2)
+  NORMAL=$(tput sgr0)
+  MSG="$1"
+  STATUS="[OK]"
+  STATUSCOLOR="$GREEN${STATUS}$NORMAL"
+  let COL=$(tput cols)-${#MSG}+${#STATUSCOLOR}-${#STATUS}
+
+  echo -n $MSG
+  printf "%${COL}s\n"  "$STATUSCOLOR"
+}
+
+##
+# 1 repo
+# 2 user
+# 3 folder
+# 4 ssh|http|git
+
+function git_get {
+  echo "Cloning $1 from Github..."
+  if [[ "$4" == "ssh"  ]]; then
+    git clone -q "git@github.com:$2/$1.git" "$3"
+  elif [[ "$4" == "git" ]]; then
+    git clone -q "git://github.com/$2/$1.git" "$3"
+  else 
+    git clone -q "https://$2@github.com/$2/$1.git" "$3"
+  fi
+}
+
+##
+# 1 sudo 
+# 2 
+# 
+
+function apt_install {
+  sudo apt-get install $1 -y
+}
+
+function installed {
+  if [[ "$2" == "no_msg" ]]; then
+    type $1 >/dev/null 2>&1 && return 0 || return 1 
+  else
+    type $1 >/dev/null 2>&1 && log_msg "$1 is installed already" && return 0 || return 1 
+  fi
+}
+
+function is_dir {
+  if [[ -d $1 ]]; then
+    if [[ "$2" != "no_msg" ]]; then
+      echo "$1 exists"
+    fi
+    return 0
+  fi
+  return 1
+}
+
+function get_github_name {
+  echo -n "Enter your Github user name:"
+  read github_name
+  echo "Your Github name is: $github_name"
+}
+
+

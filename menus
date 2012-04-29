@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function display_menu {
+if [[ "$1" == "github" ]]; then
+cat << _EOF_
+
+###############################################################################
+#                                                                             #
+#  For dotfiles and oh-my-zsh                                                 #
+#  You should have all the features you wish to install                       #
+#  forked on your github profile                                              #
+#                                                                             #
+###############################################################################
+
+_EOF_
+elif [[ "$1" == "install" ]]; then
+cat << _EOF_
+
+###############################################################################
+#                                                                             #
+#  1. git 2. vim 3. rake 4. make 5. htop 6. python 7. autojump 8. zsh         #
+#  9. cowsay 10. ponysay 11. dotfiles 12. oh-my-zsh                           #
+#                                                                             #
+#  Enter the numbers of apps to install sprated by spaces; "all" for all      #
+#                                                                             #
+###############################################################################
+
+_EOF_
+fi
+
+}
+
