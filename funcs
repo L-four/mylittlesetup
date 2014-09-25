@@ -39,15 +39,6 @@ function git_get {
   fi
 }
 
-##
-# 1 sudo 
-# 2 
-# 
-
-function apt_install {
-  sudo apt-get install $1 -y
-}
-
 function installed {
   if [[ "$2" == "no_msg" ]]; then
     type $1 >/dev/null 2>&1 && return 0 || return 1 
@@ -56,20 +47,60 @@ function installed {
   fi
 }
 
-function is_dir {
-  if [[ -d $1 ]]; then
-    if [[ "$2" != "no_msg" ]]; then
-      echo "$1 exists"
+###
+# Get Github name for user specific clones 
+###
+function get_github_name {
+  if [[ -z $github_name ]]; then
+    printf "Enter your Github user name:"
+    read -r github_name
+    if [[ -z $github_name ]]; then
+      return 1
     fi
-    return 0
   fi
+  echo "Your Github name is: $github_name"
+  return 0
+}
+
+###
+# Create my default folder structures
+#
+function pre_install {
+  mkdir "$HOME/bin"
+  mkdir "$HOME/tmp"
+  mkdir "$HOME/usr"
+  mkdir "$HOME/usr/local"
+  mkdir "$HOME/src"
+  mkdir "$HOME/src/github"
+  mkdir "$HOME/src/aur"
+  mkdir "$HOME/imports"
+  mkdir "$HOME/exports"
+}
+
+##
+# 1 github repo
+# 2 directory to install
+function dot_folder_install {
+    display_menu "github"
+    get_github_name
+    
+    repo=$1
+    dir=$2
+    app_dir="$HOME/$dir"
+    # don't install twice
+    if ! [ -d "$app_dir" ]; then
+        git_get $repo $github_name $app_dir "git"
+    else
+        return 1
+    fi
+    return 1
+}
+
+##
+# 1 str
+# 2 array
+function containsElement {
+  local e
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
   return 1
 }
-
-function get_github_name {
-  echo -n "Enter your Github user name:"
-  read github_name
-  echo "Your Github name is: $github_name"
-}
-
-

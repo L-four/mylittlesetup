@@ -1,66 +1,78 @@
 #!/bin/bash
 
-function install_1 {
- app="git"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
+function install_dotfiles {
+    $PM_INSTALL "rake"
+    pushd "$HOME/.dotfiles"
+    rake
+    popd
 }
 
-function install_2 {
- app="vim"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
+function install_repos {
+    $PM_INSTALL "git"
+    local gitrepos=("dotfiles" "oh-my-zsh" "home-bin")
+    local gitdirs=(".dotfiles" ".oh-my-zsh" "bin")
 
-function install_3 {
- app="rake"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
+    local len=${#gitrepos[@]}
 
-function install_4 {
- app="make"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_5 {
- app="htop"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_6 {
- app="python"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_7 {
- app="autojump"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_8 {
- app="zsh"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_9 {
- app="cowsay"
- installed "$app" $1 || noyes "Install $app." || apt_install "$app"
-}
-function install_10 {
- install_4 "no_msg"
- install_9 "no_msg"
- app="ponysay"
- app_dir="$HOME/src/$app"
- is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app "erkin" $app_dir "git" || cd $app_dir || make install
-}
+    for ((i = 0; i<${len}; i++)); do
+        dot_folder_install ${gitrepos[$i]} ${gitdirs[$i]}
+    done;
 
-function install_11 {
- display_menu "github"
- get_github_name || return 0
- app="dotfiles"
- app_dir="$HOME/.$app"
- is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app $github_name $app_dir "git" || cd $app_dir || rake install
-}
-
-function install_12 {
- display_menu "github"
- get_github_name || return 0
- app="oh-my-zsh"
- app_dir="$HOME/.$app"
- is_dir "$app_dir" $1 ||  noyes "Install $app." || git_get $app $github_name $app_dir "git" 
+    install_dotfiles
 }
 
 
+function install_packages_core {
+    local packages=("openssh" "git" "screen" "htop" "vim" "python" "zsh")
+    $PM_INSTALL ${packages[@]}
+}
+
+function install_packages_extra {
+    local packages=("cowsay" "ponysay")
+    $PM_INSTALL ${packages[@]}
+}
+
+function install_packages_compliation {
+    local packages=("make" "gcc" "autoconf")
+    $PM_INSTALL ${packages[@]}
+}
+
+function install_sublime_text {
+    local install_dir="$HOME/usr/local/Sublime Text 2"
+    if ! [[ -d $install_dir ]]; then
+        pushd "$HOME/usr/local"
+        curl http://c758482.r82.cf2.rackcdn.com/Sublime%20Text%202.0.2%20x64.tar.bz2 | tar -xjf - $1 
+        ln -s "$HOME/usr/local/Sublime Text 2/sublime_text" "$HOME/bin/subl"
+        popd
+    fi
+}
+
+function install_packages_webdev {
+    local packages=("php" "apache" "nginx" "nodejs" "python-pip")
+    $PM_INSTALL ${packages[@]}
+}
+
+function webdev_install {
+    install_packages_webdev
+}
+
+function extra_install {
+    install_packages_extra
+}
+
+function comp_install {
+    install_packages_compliation
+}
+
+function core_install {
+    install_packages_core
+    install_repos
+    install_sublime_text
+}
+
+function all_install {
+    core_install
+    extra_install
+    comp_install
+    webdev_install
+}

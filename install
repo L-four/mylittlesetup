@@ -1,22 +1,43 @@
 #!/bin/bash
 
+if [ -L $0 ]; then
+  WD=$(dirname "$(readlink -f $0)")
+else
+  WD=$(dirname $0)
+fi
+
+pushd $WD
+
+PM="pacman"
+PM_INSTALL="$PM -S --needed"
+
 . funcs
 . apps
 . menus
 
-display_menu "install"
+function run_install {
+    pre_install
+    CMD="$1_install"
+    $CMD
+}
 
-read to_install
+until [ "$to_install" = "exit" ]; do
+    display_menu "install"
+    printf "pick:"
+    read -r to_install
 
-if [[ "$to_install" == "all" ]]; then
-  to_install="1 2 3 4 5 6 7 8 9 10 11 12"
-fi
-
-for word in $to_install
-do
-  CMD="install_$word"
-  $CMD
+    case $to_install in
+        core | extra | webdev | comp | all )
+            run_install $to_install
+            ;;
+        exit )
+            log_msg "exit"
+            ;;
+        * )
+            log_msg "Not Vaild Group"
+            ;;
+    esac
 done
 
-log_msg "Fin." 
+ log_msg "Fin." 
 
