@@ -21,10 +21,18 @@ function install_repos {
     install_dotfiles
 }
 
+function install_perl_modules {
+    cpan -i Crypt::GeneratePassword
+}
 
 function install_packages_core {
-    local packages=("openssh" "git" "screen" "htop" "vim" "python" "zsh")
+    local packages=("openssh" "git" "screen" "htop"
+        "vim" "python" "zsh" "mlocate" "grep" "perl"
+        "poppler" "colordiff" "rtorrent" "irssi"
+        "mpd" "vlc" "dwb" "chromium" "links" "dstat"
+        "whois" "gifsicle" "irssi")
     $PM_INSTALL ${packages[@]}
+    install_perl_modules
 }
 
 function install_packages_extra {
